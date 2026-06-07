@@ -14,6 +14,13 @@ interface Coin {
   strength: number;
   sparkline: number[];
   scanned_at: string;
+  image?: string;
+  ath?: number;
+  atl?: number;
+  high_24h?: number;
+  low_24h?: number;
+  circulating_supply?: number;
+  total_supply?: number;
 }
 
 export default function Home() {
@@ -21,6 +28,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string>("");
+  const [selected, setSelected] = useState<Coin | null>(null);
 
   async function loadData() {
     try {
@@ -65,6 +73,18 @@ export default function Home() {
     );
   }
 
+  // Detect meme coin & new pairs
+  const memeKeywords = ["doge", "shib", "pepe", "floki", "meme", "bonk", "wif", "brett", "moodeng", "popcat", "turbo", "mood"];
+  const isMeme = (c: Coin) => memeKeywords.some(k => c.name.toLowerCase().includes(k) || c.symbol.toLowerCase().includes(k));
+  const memeCoins = coins.filter(isMeme);
+
+  // New pairs = coin dengan market cap relatif kecil tapi volume tinggi (likely baru listing)
+  const medianCap = [...coins].sort((a, b) => a.market_cap - b.market_cap)[Math.floor(coins.length / 2)]?.market_cap || 0;
+  const newPairs = coins
+    .filter(c => c.market_cap < medianCap * 0.3 && c.volume_24h > 1e7 && Math.abs(c.change_24h) > 3)
+    .sort((a, b) => Math.abs(b.change_24h) - Math.abs(a.change_24h))
+    .slice(0, 10);
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -76,11 +96,48 @@ export default function Home() {
         {coins.length} coins • Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : "—"}
       </p>
 
+      {newPairs.length > 0 && (
+        <div style={{ marginBottom: 30 }}>
+          <h2 style={{ color: "#fbbf24", fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
+            🚀 New Pairs & Movers
+          </h2>
+          <div style={styles.grid}>
+            {newPairs.map((coin) => (
+              <div key={coin.symbol} onClick={() => setSelected(coin)} style={{ ...styles.card, cursor: "pointer", borderColor: "#fbbf2444" }}>
+                <NewPairBadge coin={coin} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {memeCoins.length > 0 && (
+        <div style={{ marginBottom: 30 }}>
+          <h2 style={{ color: "#a78bfa", fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
+            🐸 Meme Coins
+          </h2>
+          <div style={styles.grid}>
+            {memeCoins.map((coin) => (
+              <div key={coin.symbol} onClick={() => setSelected(coin)} style={{ ...styles.card, cursor: "pointer", borderColor: "#a78bfa44" }}>
+                <CoinCard coin={coin} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <h2 style={{ color: "#cbd5e1", fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
+        📊 All Coins (Top 50)
+      </h2>
       <div style={styles.grid}>
         {coins.map((coin) => (
-          <CoinCard key={coin.symbol} coin={coin} />
+          <div key={coin.symbol} onClick={() => setSelected(coin)} style={{ ...styles.card, cursor: "pointer" }}>
+            <CoinCard coin={coin} />
+          </div>
         ))}
       </div>
+
+      {selected && <CoinModal coin={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
@@ -91,21 +148,12 @@ function CoinCard({ coin }: { coin: Coin }) {
     coin.signal === "BULLISH" ? "#10b981" : coin.signal === "BEARISH" ? "#ef4444" : "#6b7280";
 
   return (
-    <div style={styles.card}>
+    <>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ color: "#fff", fontWeight: 700, fontSize: 18 }}>{coin.symbol}</span>
-            <span
-              style={{
-                fontSize: 10,
-                padding: "2px 8px",
-                borderRadius: 10,
-                background: signalColor + "22",
-                color: signalColor,
-                border: `1px solid ${signalColor}55`,
-              }}
-            >
+            <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: signalColor + "22", color: signalColor, border: `1px solid ${signalColor}55` }}>
               {coin.signal}
             </span>
           </div>
@@ -129,83 +177,4 @@ function CoinCard({ coin }: { coin: Coin }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10, fontSize: 11 }}>
         <div>
           <p style={{ color: "#64748b" }}>1h</p>
-          <p style={{ color: coin.change_1h > 0 ? "#10b981" : "#ef4444" }}>
-            {coin.change_1h > 0 ? "+" : ""}
-            {coin.change_1h.toFixed(2)}%
-          </p>
-        </div>
-        <div>
-          <p style={{ color: "#64748b" }}>Vol 24h</p>
-          <p style={{ color: "#cbd5e1" }}>${formatNum(coin.volume_24h)}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const points = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * 100;
-      const y = 100 - ((v - min) / range) * 100;
-      return `${x},${y}`;
-    })
-    .join(" ");
-  return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: 50 }}>
-      <polyline fill="none" stroke={color} strokeWidth="2" points={points} vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
-
-function formatNum(n: number): string {
-  if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
-  if (n >= 1e3) return (n / 1e3).toFixed(2) + "K";
-  return n.toFixed(2);
-}
-
-const styles: any = {
-  container: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%)",
-    padding: 20,
-    fontFamily: "system-ui, -apple-system, sans-serif",
-    color: "#fff",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 700,
-    margin: 0,
-  },
-  button: {
-    background: "#1e293b",
-    color: "#cbd5e1",
-    border: "1px solid #334155",
-    padding: "8px 14px",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontSize: 13,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: 12,
-  },
-  card: {
-    background: "rgba(15, 23, 42, 0.6)",
-    border: "1px solid #1e293b",
-    borderRadius: 12,
-    padding: 16,
-  },
-};
+          <p style={{ color: coin.change_1h > 0 ? "#10b
