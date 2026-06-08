@@ -13,7 +13,7 @@ Play Store → Cari "Termux" → Install → Buka
 Copy-paste ini di Termux:
 
 ```bash
-pkg update && pkg install python git -y && cd ~ && git clone https://github.com/sixdevilxd/crypto-intel-agent-2.git && cd crypto-intel-agent-2 && pip install requests
+pkg update && pkg install python git -y && cd ~ && git clone https://github.com/sixdevilxd/crypto-intel-agent-2.git && cd crypto-intel-agent-2 && git checkout feature/meme-coin-scanner && pip install requests
 ```
 
 ✅ DONE!

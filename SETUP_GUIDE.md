@@ -116,19 +116,25 @@ git clone https://github.com/sixdevilxd/crypto-intel-agent-2.git
 cd crypto-intel-agent-2
 ```
 
-### 3.4 Lihat File yang Ada
+### 3.4 Masuk ke Branch Feature
+
+```bash
+git checkout feature/meme-coin-scanner
+```
+
+### 3.5 Lihat File yang Ada
 
 ```bash
 ls -la
 ```
 
-**Output:** Kamu akan lihat list file, termasuk `simple_scanner.py` dan `demo.py`
+**Output:** Kamu akan lihat list file, termasuk `simple_scanner.py`, `demo.py`, dan `app.py`
 
 ✅ Project sudah berhasil didownload!
 
 ---
 
-## ���� LANGKAH 4: INSTALL DEPENDENCIES
+## 📦 LANGKAH 4: INSTALL DEPENDENCIES
 
 ### 4.1 Install Minimal (hanya yang diperlukan)
 
@@ -370,41 +376,6 @@ python demo.py
 
 ---
 
-## 📚 LANGKAH 10: BELAJAR LEBIH LANJUT
-
-### File-file yang Penting:
-
-1. **`simple_scanner.py`** - Core analyzer code
-2. **`app.py`** - Menu utama CLI
-3. **`demo.py`** - Demo dengan contoh
-4. **`PANDUAN_SETUP_HP.md`** - Panduan ini
-
-### Hubungan Antar File:
-
-```
-app.py (menu CLI)
-   ↓
-   calls simple_scanner.py
-
-demo.py (demo contoh)
-   ↓
-   uses simple_scanner.py
-```
-
-### Cara Melihat Kode (Opsional):
-
-```bash
-# Lihat file
-cat simple_scanner.py
-
-# Atau buka dengan text editor
-nano simple_scanner.py
-
-# Tekan Ctrl + X untuk keluar
-```
-
----
-
 ## ✅ CHECKLIST COMPLETION
 
 Tandai yang sudah selesai:
@@ -435,37 +406,12 @@ pkg install python git -y
 cd ~
 git clone https://github.com/sixdevilxd/crypto-intel-agent-2.git
 cd crypto-intel-agent-2
+git checkout feature/meme-coin-scanner
 pip install requests
 
 # Jalankan
 python demo.py
 ```
-
----
-
-## 💡 TIPS UNTUK PEMULA
-
-1. **Jalankan `demo.py` dulu sebelum `app.py`**
-   - Agar paham cara kerja analyzer
-
-2. **Jangan invest langsung**
-   - Analisis dulu berkali-kali
-   - Pahami score system
-   - Practice dengan akun demo
-
-3. **DYOR (Do Your Own Research)**
-   - Gunakan scanner sebagai tools
-   - Bukan satu-satunya sumber
-
-4. **Set rules sebelum trading**
-   - Stop loss HARUS
-   - Target profit HARUS
-   - Jangan FOMO
-
-5. **Manage risk**
-   - Jangan all-in 1 token
-   - Portfolio allocation penting
-   - Hanya invest yang mampu hilang
 
 ---
 
@@ -490,18 +436,6 @@ INVESTASI DI CRYPTO SANGAT BERISIKO!
 
 ---
 
-## 🆘 BUTUH BANTUAN?
-
-Jika masih error:
-
-1. **Baca error message** - biasanya jelas
-2. **Google error tersebut** - solution pasti ada
-3. **Cek internet connection** - harus stabil
-4. **Restart Termux** - kill app & buka lagi
-5. **Reinstall** - hapus folder & clone ulang
-
----
-
 ## 🎉 SELAMAT!
 
 Kamu sudah berhasil setup Meme Coin Scanner di HP!
@@ -512,14 +446,6 @@ Kamu sudah berhasil setup Meme Coin Scanner di HP!
 - ✅ Avoid scam/rugpull
 - ✅ Make informed decisions
 
-**Next Steps:**
-1. Analisis token favorit
-2. Track hasil analysis
-3. Improve trading skill
-4. Jangan stop learning!
-
 ---
 
 **Happy Trading! 🚀**
-
-*Ingat: Kesuksesan di crypto butuh patience, discipline, dan knowledge!*
